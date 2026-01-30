@@ -1,1 +1,0 @@
-# controle-pagamentos-energia-solar
