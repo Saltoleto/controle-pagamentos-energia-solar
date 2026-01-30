@@ -6,71 +6,150 @@
 <title>Controle de Pagamentos</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background: #f2f2f2;
-    padding: 20px;
+    padding: 10px;
+    margin: 0;
 }
+
 .container {
     background: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 8px;
     max-width: 1200px;
     margin: auto;
 }
+
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ===== RESUMO ===== */
 .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 10px;
-    margin: 20px 0;
+    margin: 15px 0;
 }
+
 .stat {
     background: #f8f9fa;
     border-left: 5px solid #667eea;
-    padding: 12px;
+    padding: 10px;
     text-align: center;
+    border-radius: 4px;
 }
+
 .stat h4 {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     color: #666;
 }
+
 .stat span {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
 }
+
+/* ===== TABELA DESKTOP ===== */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 900px;
 }
+
 th, td {
     padding: 8px;
     border: 1px solid #ddd;
     text-align: center;
     font-size: 14px;
 }
+
 th {
     background: #667eea;
     color: white;
 }
+
+.valor {
+    font-weight: bold;
+}
+
+select, input, button {
+    font-size: 14px;
+    padding: 6px;
+}
+
 select[data-status="Pago"] {
     background: #d4edda;
 }
+
 select[data-status="Pendente"] {
     background: #f8d7da;
 }
+
 select:disabled, input:disabled {
     opacity: 0.7;
-    cursor: not-allowed;
 }
+
 .btn-unlock {
     background: #ffc107;
     border: none;
-    padding: 5px 8px;
     cursor: pointer;
+    border-radius: 4px;
 }
-.valor {
-    font-weight: bold;
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tr {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        padding: 10px;
+        background: #fafafa;
+    }
+
+    td {
+        border: none;
+        text-align: right;
+        padding: 6px 0;
+        font-size: 14px;
+    }
+
+    td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        color: #555;
+    }
+
+    td:last-child {
+        text-align: center;
+    }
+
+    select, input, button {
+        width: 100%;
+        margin-top: 4px;
+    }
 }
 </style>
 </head>
@@ -80,25 +159,26 @@ select:disabled, input:disabled {
 <div class="container">
     <h2>📊 Controle de Pagamentos</h2>
 
-    <!-- RESUMO FINANCEIRO -->
     <div class="stats" id="stats"></div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Parcela</th>
-            <th>Vencimento</th>
-            <th>Total</th>
-            <th>Fernando</th>
-            <th>Vitor</th>
-            <th>Sebastião</th>
-            <th>Status</th>
-            <th>Data</th>
-            <th>Ação</th>
-        </tr>
-        </thead>
-        <tbody id="tabela"></tbody>
-    </table>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Parcela</th>
+                <th>Vencimento</th>
+                <th>Total</th>
+                <th>Fernando</th>
+                <th>Vitor</th>
+                <th>Sebastião</th>
+                <th>Status</th>
+                <th>Data</th>
+                <th>Ação</th>
+            </tr>
+            </thead>
+            <tbody id="tabela"></tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Firebase -->
@@ -106,7 +186,7 @@ select:disabled, input:disabled {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-// 🔥 CONFIGURE COM SEU FIREBASE
+// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
   authDomain: "controle-pagamentos-3759d.firebaseapp.com",
@@ -119,7 +199,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ================= CONFIGURAÇÕES =================
+// ===== CONFIG =====
 const SENHA = "solar";
 const TOTAL_PARCELAS = 48;
 const DATA_INICIO = new Date(2026, 1, 27);
@@ -132,21 +212,15 @@ const VALORES_BASE = {
 const ACRESCIMO = 18;
 const PARCELAS_COM_ACRESCIMO = 4;
 
-// ================= ESTADO GLOBAL =================
 let estadoPagamentos = [];
 
-// ================= FUNÇÕES =================
+// ===== FUNÇÕES =====
 function valoresParcela(i) {
     const extra = i < PARCELAS_COM_ACRESCIMO ? ACRESCIMO : 0;
-    const fernando = VALORES_BASE.fernando + extra;
-    const vitor = VALORES_BASE.vitor + extra;
-    const sebastiao = VALORES_BASE.sebastiao + extra;
-    return {
-        fernando,
-        vitor,
-        sebastiao,
-        total: fernando + vitor + sebastiao
-    };
+    const f = VALORES_BASE.fernando + extra;
+    const v = VALORES_BASE.vitor + extra;
+    const s = VALORES_BASE.sebastiao + extra;
+    return { fernando: f, vitor: v, sebastiao: s, total: f + v + s };
 }
 
 function gerarTabela() {
@@ -159,119 +233,99 @@ function gerarTabela() {
         const v = valoresParcela(i);
 
         tbody.innerHTML += `
-            <tr>
-                <td>${String(i+1).padStart(2,"0")}/${TOTAL_PARCELAS}</td>
-                <td>${d.toLocaleDateString("pt-BR")}</td>
-                <td class="valor">R$ ${v.total.toFixed(2).replace(".",",")}</td>
-                <td>R$ ${v.fernando.toFixed(2).replace(".",",")}</td>
-                <td>R$ ${v.vitor.toFixed(2).replace(".",",")}</td>
-                <td>R$ ${v.sebastiao.toFixed(2).replace(".",",")}</td>
-                <td>
-                    <select data-i="${i}" onchange="pagar(${i}, this.value)">
-                        <option>Pendente</option>
-                        <option>Pago</option>
-                    </select>
-                </td>
-                <td><input type="date" data-i="${i}"></td>
-                <td><button class="btn-unlock" onclick="desbloquear(${i})">🔓</button></td>
-            </tr>`;
+        <tr>
+            <td data-label="Parcela">${String(i+1).padStart(2,"0")}/${TOTAL_PARCELAS}</td>
+            <td data-label="Vencimento">${d.toLocaleDateString("pt-BR")}</td>
+            <td data-label="Total" class="valor">R$ ${v.total.toFixed(2).replace(".",",")}</td>
+            <td data-label="Fernando">R$ ${v.fernando.toFixed(2).replace(".",",")}</td>
+            <td data-label="Vitor">R$ ${v.vitor.toFixed(2).replace(".",",")}</td>
+            <td data-label="Sebastião">R$ ${v.sebastiao.toFixed(2).replace(".",",")}</td>
+            <td data-label="Status">
+                <select data-i="${i}" onchange="pagar(${i}, this.value)">
+                    <option>Pendente</option>
+                    <option>Pago</option>
+                </select>
+            </td>
+            <td data-label="Data">
+                <input type="date" data-i="${i}">
+            </td>
+            <td data-label="Ação">
+                <button class="btn-unlock" onclick="desbloquear(${i})">🔓 Desbloquear</button>
+            </td>
+        </tr>`;
     }
 }
 
 function iniciarListenerFirestore() {
-    db.collection("pagamentos")
-      .doc("parcelas")
-      .onSnapshot(doc => {
-          if (!doc.exists) return;
+    db.collection("pagamentos").doc("parcelas").onSnapshot(doc => {
+        if (!doc.exists) return;
+        estadoPagamentos = doc.data().dados || [];
 
-          estadoPagamentos = doc.data().dados || [];
+        estadoPagamentos.forEach((p,i)=>{
+            const s = document.querySelector(`select[data-i="${i}"]`);
+            const d = document.querySelector(`input[data-i="${i}"]`);
+            if(!s||!d) return;
 
-          estadoPagamentos.forEach((p, i) => {
-              const s = document.querySelector(`select[data-i="${i}"]`);
-              const d = document.querySelector(`input[data-i="${i}"]`);
-              if (!s || !d) return;
+            s.value = p.status;
+            s.setAttribute("data-status", p.status);
+            s.disabled = p.bloqueado;
+            d.disabled = p.bloqueado;
+            d.value = p.data || "";
+        });
 
-              s.value = p.status;
-              s.setAttribute("data-status", p.status);
-              d.value = p.data || "";
-              s.disabled = p.bloqueado;
-              d.disabled = p.bloqueado;
-          });
-
-          atualizarResumo();
-      });
+        atualizarResumo();
+    });
 }
 
 async function salvar() {
     estadoPagamentos = [];
-
     for (let i = 0; i < TOTAL_PARCELAS; i++) {
         const s = document.querySelector(`select[data-i="${i}"]`);
         const d = document.querySelector(`input[data-i="${i}"]`);
-        estadoPagamentos.push({
-            status: s.value,
-            data: d.value,
-            bloqueado: s.disabled
-        });
+        estadoPagamentos.push({ status: s.value, data: d.value, bloqueado: s.disabled });
     }
-
-    await db.collection("pagamentos")
-            .doc("parcelas")
-            .set({ dados: estadoPagamentos });
+    await db.collection("pagamentos").doc("parcelas").set({ dados: estadoPagamentos });
 }
 
-function pagar(i, status) {
-    if (status === "Pago") {
-        if (prompt("Senha:") !== SENHA) return;
-
-        const s = document.querySelector(`select[data-i="${i}"]`);
-        const d = document.querySelector(`input[data-i="${i}"]`);
-
-        d.value = new Date().toISOString().split("T")[0];
-        s.disabled = true;
-        d.disabled = true;
+function pagar(i,status) {
+    if(status==="Pago"){
+        if(prompt("Senha:")!==SENHA) return;
+        const s=document.querySelector(`select[data-i="${i}"]`);
+        const d=document.querySelector(`input[data-i="${i}"]`);
+        d.value=new Date().toISOString().split("T")[0];
+        s.disabled=true; d.disabled=true;
         s.setAttribute("data-status","Pago");
-
         salvar();
     }
 }
 
-function desbloquear(i) {
-    if (prompt("Senha:") !== SENHA) return;
-
-    const s = document.querySelector(`select[data-i="${i}"]`);
-    const d = document.querySelector(`input[data-i="${i}"]`);
-
-    s.disabled = false;
-    d.disabled = false;
-    s.value = "Pendente";
-    d.value = "";
+function desbloquear(i){
+    if(prompt("Senha:")!==SENHA) return;
+    const s=document.querySelector(`select[data-i="${i}"]`);
+    const d=document.querySelector(`input[data-i="${i}"]`);
+    s.disabled=false; d.disabled=false;
+    s.value="Pendente"; d.value="";
     s.setAttribute("data-status","Pendente");
-
     salvar();
 }
 
-function atualizarResumo() {
-    let pagos = 0;
-    let totalPago = 0;
-
+function atualizarResumo(){
+    let pagos=0,total=0;
     estadoPagamentos.forEach((p,i)=>{
-        if (p.status === "Pago") {
+        if(p.status==="Pago"){
             pagos++;
-            totalPago += valoresParcela(i).total;
+            total+=valoresParcela(i).total;
         }
     });
-
-    document.getElementById("stats").innerHTML = `
-        <div class="stat"><h4>Parcelas Pagas</h4><span>${pagos}</span></div>
-        <div class="stat"><h4>Parcelas Pendentes</h4><span>${TOTAL_PARCELAS - pagos}</span></div>
-        <div class="stat"><h4>Total Pago</h4><span>R$ ${totalPago.toLocaleString("pt-BR",{minimumFractionDigits:2})}</span></div>
+    document.getElementById("stats").innerHTML=`
+        <div class="stat"><h4>Pagas</h4><span>${pagos}</span></div>
+        <div class="stat"><h4>Pendentes</h4><span>${TOTAL_PARCELAS-pagos}</span></div>
+        <div class="stat"><h4>Total Pago</h4><span>R$ ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}</span></div>
         <div class="stat"><h4>Progresso</h4><span>${Math.round((pagos/TOTAL_PARCELAS)*100)}%</span></div>
     `;
 }
 
-// ================= INICIALIZAÇÃO =================
-window.onload = () => {
+window.onload=()=>{
     gerarTabela();
     iniciarListenerFirestore();
 };
