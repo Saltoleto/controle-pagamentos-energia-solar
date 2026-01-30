@@ -28,7 +28,7 @@ body {
 
 h2 {
     text-align: center;
-    margin: 5px 0 10px;
+    margin-bottom: 10px;
 }
 
 /* ===== RESUMO ===== */
@@ -58,7 +58,7 @@ h2 {
     font-weight: bold;
 }
 
-/* ===== TABELA ===== */
+/* ===== TABELA / CARDS ===== */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -91,17 +91,10 @@ td {
     border-bottom: none;
 }
 
-.bloco strong {
-    display: block;
-    margin-bottom: 4px;
-}
-
-/* ===== VALORES ===== */
 .valores div {
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    margin: 2px 0;
 }
 
 .valores .total {
@@ -119,6 +112,11 @@ select, input, button {
     font-size: 14px;
 }
 
+input[readonly] {
+    background: #e9ecef;
+    cursor: not-allowed;
+}
+
 select[data-status="Pago"] {
     background: #d4edda;
 }
@@ -127,8 +125,7 @@ select[data-status="Pendente"] {
     background: #f8d7da;
 }
 
-select:disabled,
-input:disabled {
+select:disabled {
     opacity: 0.7;
 }
 
@@ -167,16 +164,6 @@ input:disabled {
     .valores div {
         display: block;
         font-size: 14px;
-    }
-
-    .valores .total {
-        border: none;
-        padding: 0;
-        margin-top: 4px;
-    }
-
-    select, input, button {
-        margin-top: 0;
     }
 }
 </style>
@@ -285,7 +272,7 @@ function gerarTabela() {
 
             <td>
                 <div class="bloco">
-                    <input type="date" data-i="${i}">
+                    <input type="date" data-i="${i}" readonly>
                 </div>
             </td>
 
@@ -311,7 +298,6 @@ function iniciarListenerFirestore() {
             s.value = p.status;
             s.setAttribute("data-status", p.status);
             s.disabled = p.bloqueado;
-            d.disabled = p.bloqueado;
             d.value = p.data || "";
         });
 
@@ -340,7 +326,6 @@ function pagar(i,status) {
         const d=document.querySelector(`input[data-i="${i}"]`);
         d.value=new Date().toISOString().split("T")[0];
         s.disabled=true;
-        d.disabled=true;
         s.setAttribute("data-status","Pago");
         salvar();
     }
@@ -351,7 +336,6 @@ function desbloquear(i){
     const s=document.querySelector(`select[data-i="${i}"]`);
     const d=document.querySelector(`input[data-i="${i}"]`);
     s.disabled=false;
-    d.disabled=false;
     s.value="Pendente";
     d.value="";
     s.setAttribute("data-status","Pendente");
