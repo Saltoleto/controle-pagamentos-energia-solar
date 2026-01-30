@@ -8,86 +8,115 @@
 <style>
 * {
     box-sizing: border-box;
+    max-width: 100%;
 }
 
 body {
+    margin: 0;
+    padding: 10px;
     font-family: Arial, sans-serif;
     background: #f2f2f2;
-    padding: 10px;
-    margin: 0;
 }
 
 .container {
-    background: white;
-    padding: 15px;
+    background: #fff;
     border-radius: 8px;
+    padding: 12px;
     max-width: 1200px;
     margin: auto;
 }
 
 h2 {
     text-align: center;
-    margin-bottom: 10px;
+    margin: 5px 0 10px;
 }
 
 /* ===== RESUMO ===== */
 .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 10px;
-    margin: 15px 0;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .stat {
     background: #f8f9fa;
-    border-left: 5px solid #667eea;
-    padding: 10px;
-    text-align: center;
+    border-left: 4px solid #667eea;
+    padding: 8px;
     border-radius: 4px;
+    text-align: center;
 }
 
 .stat h4 {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     color: #666;
 }
 
 .stat span {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
 }
 
-/* ===== TABELA DESKTOP ===== */
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
+/* ===== TABELA ===== */
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 900px;
 }
 
-th, td {
-    padding: 8px;
+thead {
+    display: none;
+}
+
+tr.card-parcela {
+    display: block;
+    background: #fafafa;
     border: 1px solid #ddd;
-    text-align: center;
-    font-size: 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
 }
 
-th {
-    background: #667eea;
-    color: white;
+td {
+    display: block;
+    padding: 0;
 }
 
-.valor {
+/* ===== BLOCOS ===== */
+.bloco {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.bloco:last-child {
+    border-bottom: none;
+}
+
+.bloco strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* ===== VALORES ===== */
+.valores div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin: 2px 0;
+}
+
+.valores .total {
+    margin-top: 6px;
     font-weight: bold;
+    border-top: 1px dashed #ccc;
+    padding-top: 4px;
 }
 
+/* ===== INPUTS ===== */
 select, input, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
     font-size: 14px;
-    padding: 6px;
 }
 
 select[data-status="Pago"] {
@@ -98,57 +127,56 @@ select[data-status="Pendente"] {
     background: #f8d7da;
 }
 
-select:disabled, input:disabled {
+select:disabled,
+input:disabled {
     opacity: 0.7;
 }
 
 .btn-unlock {
     background: #ffc107;
     border: none;
-    cursor: pointer;
     border-radius: 4px;
+    cursor: pointer;
 }
 
-/* ===== MOBILE ===== */
-@media (max-width: 768px) {
-
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
+/* ===== DESKTOP ===== */
+@media (min-width: 900px) {
 
     thead {
-        display: none;
+        display: table-header-group;
     }
 
-    tr {
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        margin-bottom: 12px;
-        padding: 10px;
-        background: #fafafa;
+    tr.card-parcela {
+        display: table-row;
+        background: #fff;
     }
 
     td {
+        display: table-cell;
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .bloco {
         border: none;
-        text-align: right;
-        padding: 6px 0;
+        padding: 0;
+    }
+
+    .valores div {
+        display: block;
         font-size: 14px;
     }
 
-    td::before {
-        content: attr(data-label);
-        float: left;
-        font-weight: bold;
-        color: #555;
-    }
-
-    td:last-child {
-        text-align: center;
+    .valores .total {
+        border: none;
+        padding: 0;
+        margin-top: 4px;
     }
 
     select, input, button {
-        width: 100%;
-        margin-top: 4px;
+        margin-top: 0;
     }
 }
 </style>
@@ -161,24 +189,19 @@ select:disabled, input:disabled {
 
     <div class="stats" id="stats"></div>
 
-    <div class="table-wrapper">
-        <table>
-            <thead>
-            <tr>
-                <th>Parcela</th>
-                <th>Vencimento</th>
-                <th>Total</th>
-                <th>Fernando</th>
-                <th>Vitor</th>
-                <th>Sebastião</th>
-                <th>Status</th>
-                <th>Data</th>
-                <th>Ação</th>
-            </tr>
-            </thead>
-            <tbody id="tabela"></tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Parcela</th>
+            <th>Vencimento</th>
+            <th>Valores</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th>Ação</th>
+        </tr>
+        </thead>
+        <tbody id="tabela"></tbody>
+    </table>
 </div>
 
 <!-- Firebase -->
@@ -209,6 +232,7 @@ const VALORES_BASE = {
     vitor: 300,
     sebastiao: 200
 };
+
 const ACRESCIMO = 18;
 const PARCELAS_COM_ACRESCIMO = 4;
 
@@ -233,24 +257,42 @@ function gerarTabela() {
         const v = valoresParcela(i);
 
         tbody.innerHTML += `
-        <tr>
-            <td data-label="Parcela">${String(i+1).padStart(2,"0")}/${TOTAL_PARCELAS}</td>
-            <td data-label="Vencimento">${d.toLocaleDateString("pt-BR")}</td>
-            <td data-label="Total" class="valor">R$ ${v.total.toFixed(2).replace(".",",")}</td>
-            <td data-label="Fernando">R$ ${v.fernando.toFixed(2).replace(".",",")}</td>
-            <td data-label="Vitor">R$ ${v.vitor.toFixed(2).replace(".",",")}</td>
-            <td data-label="Sebastião">R$ ${v.sebastiao.toFixed(2).replace(".",",")}</td>
-            <td data-label="Status">
-                <select data-i="${i}" onchange="pagar(${i}, this.value)">
-                    <option>Pendente</option>
-                    <option>Pago</option>
-                </select>
+        <tr class="card-parcela">
+            <td>
+                <div class="bloco">
+                    <strong>📅 Parcela ${String(i+1).padStart(2,"0")}/${TOTAL_PARCELAS}</strong>
+                    Vencimento: ${d.toLocaleDateString("pt-BR")}
+                </div>
             </td>
-            <td data-label="Data">
-                <input type="date" data-i="${i}">
+
+            <td>
+                <div class="bloco valores">
+                    <div>Fernando <span>R$ ${v.fernando.toFixed(2).replace(".",",")}</span></div>
+                    <div>Vitor <span>R$ ${v.vitor.toFixed(2).replace(".",",")}</span></div>
+                    <div>Sebastião <span>R$ ${v.sebastiao.toFixed(2).replace(".",",")}</span></div>
+                    <div class="total">Total <span>R$ ${v.total.toFixed(2).replace(".",",")}</span></div>
+                </div>
             </td>
-            <td data-label="Ação">
-                <button class="btn-unlock" onclick="desbloquear(${i})">🔓 Desbloquear</button>
+
+            <td>
+                <div class="bloco">
+                    <select data-i="${i}" onchange="pagar(${i}, this.value)">
+                        <option>Pendente</option>
+                        <option>Pago</option>
+                    </select>
+                </div>
+            </td>
+
+            <td>
+                <div class="bloco">
+                    <input type="date" data-i="${i}">
+                </div>
+            </td>
+
+            <td>
+                <div class="bloco">
+                    <button class="btn-unlock" onclick="desbloquear(${i})">🔓 Desbloquear</button>
+                </div>
             </td>
         </tr>`;
     }
@@ -282,7 +324,11 @@ async function salvar() {
     for (let i = 0; i < TOTAL_PARCELAS; i++) {
         const s = document.querySelector(`select[data-i="${i}"]`);
         const d = document.querySelector(`input[data-i="${i}"]`);
-        estadoPagamentos.push({ status: s.value, data: d.value, bloqueado: s.disabled });
+        estadoPagamentos.push({
+            status: s.value,
+            data: d.value,
+            bloqueado: s.disabled
+        });
     }
     await db.collection("pagamentos").doc("parcelas").set({ dados: estadoPagamentos });
 }
@@ -293,7 +339,8 @@ function pagar(i,status) {
         const s=document.querySelector(`select[data-i="${i}"]`);
         const d=document.querySelector(`input[data-i="${i}"]`);
         d.value=new Date().toISOString().split("T")[0];
-        s.disabled=true; d.disabled=true;
+        s.disabled=true;
+        d.disabled=true;
         s.setAttribute("data-status","Pago");
         salvar();
     }
@@ -303,8 +350,10 @@ function desbloquear(i){
     if(prompt("Senha:")!==SENHA) return;
     const s=document.querySelector(`select[data-i="${i}"]`);
     const d=document.querySelector(`input[data-i="${i}"]`);
-    s.disabled=false; d.disabled=false;
-    s.value="Pendente"; d.value="";
+    s.disabled=false;
+    d.disabled=false;
+    s.value="Pendente";
+    d.value="";
     s.setAttribute("data-status","Pendente");
     salvar();
 }
@@ -317,6 +366,7 @@ function atualizarResumo(){
             total+=valoresParcela(i).total;
         }
     });
+
     document.getElementById("stats").innerHTML=`
         <div class="stat"><h4>Pagas</h4><span>${pagos}</span></div>
         <div class="stat"><h4>Pendentes</h4><span>${TOTAL_PARCELAS-pagos}</span></div>
@@ -325,7 +375,7 @@ function atualizarResumo(){
     `;
 }
 
-window.onload=()=>{
+window.onload = () => {
     gerarTabela();
     iniciarListenerFirestore();
 };
