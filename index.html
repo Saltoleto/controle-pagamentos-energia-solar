@@ -1,29 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
-  authDomain: "controle-pagamentos-3759d.firebaseapp.com",
-  projectId: "controle-pagamentos-3759d",
-  storageBucket: "controle-pagamentos-3759d.firebasestorage.app",
-  messagingSenderId: "219928011798",
-  appId: "1:219928011798:web:7946650d61cf0bc2528137"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
-
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle de Pagamentos Sistema Energia Solar</title>
+<title>Controle de Pagamentos</title>
 
 <style>
 body {
@@ -31,7 +11,6 @@ body {
     background: #f2f2f2;
     padding: 20px;
 }
-
 .container {
     background: white;
     padding: 20px;
@@ -39,32 +18,27 @@ body {
     max-width: 1200px;
     margin: auto;
 }
-
 .stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
     gap: 10px;
     margin: 20px 0;
 }
-
 .stat {
     background: #f8f9fa;
     border-left: 5px solid #667eea;
     padding: 12px;
     text-align: center;
 }
-
 .stat h4 {
     margin: 0;
     font-size: 14px;
     color: #666;
 }
-
 .stat span {
     font-size: 22px;
     font-weight: bold;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -79,28 +53,24 @@ th {
     background: #667eea;
     color: white;
 }
-
-.valor {
-    font-weight: bold;
-}
-
 select[data-status="Pago"] {
     background: #d4edda;
 }
 select[data-status="Pendente"] {
     background: #f8d7da;
 }
-
 select:disabled, input:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
-
 .btn-unlock {
     background: #ffc107;
     border: none;
     padding: 5px 8px;
     cursor: pointer;
+}
+.valor {
+    font-weight: bold;
 }
 </style>
 </head>
@@ -108,7 +78,7 @@ select:disabled, input:disabled {
 <body>
 
 <div class="container">
-    <h2>📊 Controle de Pagamentos Sistema Energia Solar</h2>
+    <h2>📊 Controle de Pagamentos</h2>
 
     <!-- RESUMO FINANCEIRO -->
     <div class="stats" id="stats"></div>
@@ -123,7 +93,7 @@ select:disabled, input:disabled {
             <th>Vitor</th>
             <th>Sebastião</th>
             <th>Status</th>
-            <th>Data Pagamento</th>
+            <th>Data</th>
             <th>Ação</th>
         </tr>
         </thead>
@@ -131,10 +101,28 @@ select:disabled, input:disabled {
     </table>
 </div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <script>
+// 🔥 CONFIGURE COM SEU FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
+  authDomain: "controle-pagamentos-3759d.firebaseapp.com",
+  projectId: "controle-pagamentos-3759d",
+  storageBucket: "controle-pagamentos-3759d.firebasestorage.app",
+  messagingSenderId: "219928011798",
+  appId: "1:219928011798:web:7946650d61cf0bc2528137"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ================= CONFIGURAÇÕES =================
 const SENHA = "solar";
 const TOTAL_PARCELAS = 48;
-const DATA_INICIO = new Date(2026,1,27);
+const DATA_INICIO = new Date(2026, 1, 27);
 
 const VALORES_BASE = {
     fernando: 300,
@@ -144,13 +132,15 @@ const VALORES_BASE = {
 const ACRESCIMO = 18;
 const PARCELAS_COM_ACRESCIMO = 4;
 
+// ================= ESTADO GLOBAL =================
+let estadoPagamentos = [];
+
+// ================= FUNÇÕES =================
 function valoresParcela(i) {
     const extra = i < PARCELAS_COM_ACRESCIMO ? ACRESCIMO : 0;
-
     const fernando = VALORES_BASE.fernando + extra;
     const vitor = VALORES_BASE.vitor + extra;
     const sebastiao = VALORES_BASE.sebastiao + extra;
-
     return {
         fernando,
         vitor,
@@ -186,16 +176,53 @@ function gerarTabela() {
                 <td><button class="btn-unlock" onclick="desbloquear(${i})">🔓</button></td>
             </tr>`;
     }
-    carregar();
-    atualizarResumo();
+}
+
+function iniciarListenerFirestore() {
+    db.collection("pagamentos")
+      .doc("parcelas")
+      .onSnapshot(doc => {
+          if (!doc.exists) return;
+
+          estadoPagamentos = doc.data().dados || [];
+
+          estadoPagamentos.forEach((p, i) => {
+              const s = document.querySelector(`select[data-i="${i}"]`);
+              const d = document.querySelector(`input[data-i="${i}"]`);
+              if (!s || !d) return;
+
+              s.value = p.status;
+              s.setAttribute("data-status", p.status);
+              d.value = p.data || "";
+              s.disabled = p.bloqueado;
+              d.disabled = p.bloqueado;
+          });
+
+          atualizarResumo();
+      });
+}
+
+async function salvar() {
+    estadoPagamentos = [];
+
+    for (let i = 0; i < TOTAL_PARCELAS; i++) {
+        const s = document.querySelector(`select[data-i="${i}"]`);
+        const d = document.querySelector(`input[data-i="${i}"]`);
+        estadoPagamentos.push({
+            status: s.value,
+            data: d.value,
+            bloqueado: s.disabled
+        });
+    }
+
+    await db.collection("pagamentos")
+            .doc("parcelas")
+            .set({ dados: estadoPagamentos });
 }
 
 function pagar(i, status) {
     if (status === "Pago") {
-        if (prompt("Senha:") !== SENHA) {
-            carregar();
-            return;
-        }
+        if (prompt("Senha:") !== SENHA) return;
 
         const s = document.querySelector(`select[data-i="${i}"]`);
         const d = document.querySelector(`input[data-i="${i}"]`);
@@ -206,7 +233,6 @@ function pagar(i, status) {
         s.setAttribute("data-status","Pago");
 
         salvar();
-        atualizarResumo();
     }
 }
 
@@ -223,57 +249,13 @@ function desbloquear(i) {
     s.setAttribute("data-status","Pendente");
 
     salvar();
-    atualizarResumo();
 }
-
-async function salvar() {
-    const dados = [];
-    for (let i=0;i<TOTAL_PARCELAS;i++) {
-        const s = document.querySelector(`select[data-i="${i}"]`);
-        const d = document.querySelector(`input[data-i="${i}"]`);
-        dados.push({
-            status: s.value,
-            data: d.value,
-            bloqueado: s.disabled
-        });
-    }
-//    localStorage.setItem("pagamentos", JSON.stringify(dados));
-
-    JSON.parse(localStorage.getItem("pagamentos"))
-
-    await db.collection("pagamentos")
-            .doc("parcelas")
-            .set({ dados });
-
-
-}
-
-db.collection("pagamentos")
-  .doc("parcelas")
-  .onSnapshot(doc => {
-      if (!doc.exists) return;
-      const dados = doc.data().dados || [];
-      dados.forEach((p,i)=>{
-          const s = document.querySelector(`select[data-i="${i}"]`);
-          const d = document.querySelector(`input[data-i="${i}"]`);
-          if (!s || !d) return;
-          s.value = p.status;
-          s.setAttribute("data-status", p.status);
-          d.value = p.data || "";
-          s.disabled = p.bloqueado;
-          d.disabled = p.bloqueado;
-      });
-      atualizarResumo();
-  });
-
-
 
 function atualizarResumo() {
-    const dados = JSON.parse(localStorage.getItem("pagamentos")) || [];
     let pagos = 0;
     let totalPago = 0;
 
-    dados.forEach((p,i)=>{
+    estadoPagamentos.forEach((p,i)=>{
         if (p.status === "Pago") {
             pagos++;
             totalPago += valoresParcela(i).total;
@@ -288,7 +270,11 @@ function atualizarResumo() {
     `;
 }
 
-window.onload = gerarTabela;
+// ================= INICIALIZAÇÃO =================
+window.onload = () => {
+    gerarTabela();
+    iniciarListenerFirestore();
+};
 </script>
 
 </body>
