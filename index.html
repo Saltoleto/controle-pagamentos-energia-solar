@@ -207,6 +207,8 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();    
 const db = firebase.firestore();
 
 // ===== CONFIG =====
@@ -224,6 +226,16 @@ const ACRESCIMO = 18;
 const PARCELAS_COM_ACRESCIMO = 4;
 
 let estadoPagamentos = [];
+
+async function autenticarAnonimo() {
+    try {
+        await auth.signInAnonymously();
+        console.log("Usuário autenticado anonimamente");
+    } catch (e) {
+        alert("Erro ao autenticar: " + e.message);
+    }
+}
+    
 
 async function carregarSenha() {
     const doc = await db
@@ -385,10 +397,12 @@ function atualizarResumo(){
 }
 
 window.onload = async () => {
+    await autenticarAnonimo();
+    await carregarSenha(); 
     gerarTabela();
-    await carregarSenha();
     iniciarListenerFirestore();
 };
+
 
 </script>
 
