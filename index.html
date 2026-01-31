@@ -249,10 +249,11 @@ async function registrarNotificacao() {
     serviceWorkerRegistration: swRegistration
   });
 
-  await db.collection("notificacoes").doc(token).set({
-    token,
-    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
+await db.collection("notificacoes").doc(token).set({
+  token,
+  criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+}, { merge: true });
+
 
   console.log("Token registrado:", token);
 }
