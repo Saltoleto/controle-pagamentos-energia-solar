@@ -212,6 +212,7 @@ if ('serviceWorker' in navigator) {
     '/controle-pagamentos-energia-solar/firebase-messaging-sw.js'
   ).then(registration => {
     console.log('Service Worker registrado:', registration.scope);
+    messaging.useServiceWorker(registration);
   });
 }
 
