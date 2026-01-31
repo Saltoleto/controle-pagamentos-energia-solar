@@ -200,25 +200,50 @@ select:disabled {
 <!-- Auth -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
+<!-- Firebase Messaging-->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
     
 
 <script>
-    
-// ===== FIREBASE =====
-const firebaseConfig = {
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(
+    '/controle-pagamentos-energia-solar/firebase-messaging-sw.js'
+  ).then(registration => {
+    console.log('Service Worker registrado:', registration.scope);
+  });
+}
+
+firebase.initializeApp({
   apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
   authDomain: "controle-pagamentos-3759d.firebaseapp.com",
   projectId: "controle-pagamentos-3759d",
-  storageBucket: "controle-pagamentos-3759d.firebasestorage.app",
   messagingSenderId: "219928011798",
   appId: "1:219928011798:web:7946650d61cf0bc2528137"
-};
+});
 
-firebase.initializeApp(firebaseConfig);
+
+async function registrarNotificacao() {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") return;
+    
+  const token = await messaging.getToken({
+    vapidKey: "BFApPQ4kZRnpq8UedSKoxx_icTgJd_hcSztRh3aEa8cC3ZOS9Odwl-9DJygBRv7WcpHrB-1AY2_8nZtYn8JzBsk"
+  });
+
+  await db.collection("notificacoes").doc(token).set({
+    token,
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  console.log("Token registrado:", token);
+}
+
 
 const auth = firebase.auth();
-
 const db = firebase.firestore();
+const messaging = firebase.messaging();
 
 
 // ===== CONFIG =====
@@ -258,7 +283,40 @@ async function carregarSenha() {
     } else {
         alert("⚠️ Documento de segurança não encontrado.");
     }
-}    
+}
+
+// ===== NOTIFICAÇÕES (FCM) =====
+async function registrarNotificacao() {
+    try {
+        // Solicita permissão
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+            console.log("Permissão de notificação negada");
+            return;
+        }
+
+        // Obtém o token do dispositivo
+        const token = await messaging.getToken({
+            vapidKey: "BP1_U06Nws615JSm4XqDpHLrsAN_Y_UEKe62PkmmreAQnmo9YiT8ZAQG7yQoF__kYMqrqbhw3jS1pIZUk6KO29Y"
+        });
+
+        if (!token) return;
+
+        console.log("Token FCM:", token);
+
+        // Salva token no Firestore
+        await db.collection("notificacoes").doc(token).set({
+            token,
+            criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+            userId: auth.currentUser.uid
+        });
+
+    } catch (e) {
+        console.error("Erro ao registrar notificação:", e);
+    }
+}
+
+    
 
 // ===== FUNÇÕES =====
 function valoresParcela(i) {
@@ -405,11 +463,25 @@ function atualizarResumo(){
     `;
 }
 
+// Notificação com app aberto
+messaging.onMessage(payload => {
+    console.log("Mensagem recebida:", payload);
+
+    if (payload.notification) {
+        alert(
+            payload.notification.title + "\n" +
+            payload.notification.body
+        );
+    }
+});
+
+
 window.onload = async () => {
     await autenticarAnonimo();
     await carregarSenha(); 
     gerarTabela();
     iniciarListenerFirestore();
+    registrarNotificacao();
 
 };
 
