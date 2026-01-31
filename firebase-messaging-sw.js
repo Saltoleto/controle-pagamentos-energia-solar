@@ -11,12 +11,35 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// 🔔 RECEBE NOTIFICAÇÃO COM APP FECHADO
 messaging.onBackgroundMessage(payload => {
   self.registration.showNotification(
-    payload.notification.title,
+    payload.data.title,
     {
-      body: payload.notification.body,
-      icon: "/icon.png"
+      body: payload.data.body,
+      data: {
+        url: payload.data.url
+      }
     }
   );
 });
+
+// 👉 CLIQUE NA NOTIFICAÇÃO
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+
+  const url = event.notification.data.url;
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then(clientList => {
+        for (const client of clientList) {
+          if (client.url === url && "focus" in client) {
+            return client.focus();
+          }
+        }
+        return clients.openWindow(url);
+      })
+  );
+});
+
