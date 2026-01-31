@@ -450,18 +450,6 @@ function atualizarResumo(){
     `;
 }
 
-// Notificação com app aberto
-messaging.onMessage(payload => {
-    console.log("Mensagem recebida:", payload);
-
-    if (payload.notification) {
-        alert(
-            payload.notification.title + "\n" +
-            payload.notification.body
-        );
-    }
-});
-
 
 window.onload = async () => {
     await autenticarAnonimo();
