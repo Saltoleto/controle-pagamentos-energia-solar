@@ -210,7 +210,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // ===== CONFIG =====
-const SENHA = "solar";
+let senhaSistema = null;
 const TOTAL_PARCELAS = 48;
 const DATA_INICIO = new Date(2026, 1, 27);
 
@@ -224,6 +224,20 @@ const ACRESCIMO = 18;
 const PARCELAS_COM_ACRESCIMO = 4;
 
 let estadoPagamentos = [];
+
+async function carregarSenha() {
+    const doc = await db
+        .collection("configuracoes")
+        .doc("seguranca")
+        .get();
+
+    if (doc.exists) {
+        senhaSistema = doc.data().senha;
+    } else {
+        alert("⚠️ Documento de segurança não encontrado.");
+    }
+}
+    
 
 // ===== FUNÇÕES =====
 function valoresParcela(i) {
@@ -320,8 +334,13 @@ async function salvar() {
 }
 
 function pagar(i,status) {
-    if(status==="Pago"){
-        if(prompt("Senha:")!==SENHA) return;
+    if(status==="Pago") {
+        if (!senhaSistema) {
+        alert("Senha ainda não carregada.");
+        return;
+    }
+
+    if (prompt("Senha:") !== senhaSistema) return;
         const s=document.querySelector(`select[data-i="${i}"]`);
         const d=document.querySelector(`input[data-i="${i}"]`);
         d.value=new Date().toISOString().split("T")[0];
@@ -332,7 +351,13 @@ function pagar(i,status) {
 }
 
 function desbloquear(i){
-    if(prompt("Senha:")!==SENHA) return;
+    if (!senhaSistema) {
+        alert("Senha ainda não carregada.");
+        return;
+    }
+
+    if (prompt("Senha:") !== senhaSistema) return;
+    
     const s=document.querySelector(`select[data-i="${i}"]`);
     const d=document.querySelector(`input[data-i="${i}"]`);
     s.disabled=false;
@@ -359,10 +384,12 @@ function atualizarResumo(){
     `;
 }
 
-window.onload = () => {
+window.onload = async () => {
     gerarTabela();
+    await carregarSenha();
     iniciarListenerFirestore();
 };
+
 </script>
 
 </body>
