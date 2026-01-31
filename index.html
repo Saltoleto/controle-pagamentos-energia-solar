@@ -1,411 +1,235 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle de Pagamentos Energia Solar - Saltoleto</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Controle de Pagamentos</title>
 
-<style>
-* {
-    box-sizing: border-box;
-    max-width: 100%;
-}
-
-body {
-    margin: 0;
-    padding: 10px;
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-}
-
-.container {
-    background: #fff;
-    border-radius: 8px;
-    padding: 12px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-h2 {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-/* ===== RESUMO ===== */
-.stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.stat {
-    background: #f8f9fa;
-    border-left: 4px solid #667eea;
-    padding: 8px;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.stat h4 {
-    margin: 0;
-    font-size: 12px;
-    color: #666;
-}
-
-.stat span {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* ===== TABELA / CARDS ===== */
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-thead {
-    display: none;
-}
-
-tr.card-parcela {
-    display: block;
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 12px;
-}
-
-td {
-    display: block;
-    padding: 0;
-}
-
-/* ===== BLOCOS ===== */
-.bloco {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.bloco:last-child {
-    border-bottom: none;
-}
-
-.valores div {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-}
-
-.valores .total {
-    margin-top: 6px;
-    font-weight: bold;
-    border-top: 1px dashed #ccc;
-    padding-top: 4px;
-}
-
-/* ===== INPUTS ===== */
-select, input, button {
-    width: 100%;
-    padding: 8px;
-    margin-top: 6px;
-    font-size: 14px;
-}
-
-input[readonly] {
-    background: #e9ecef;
-    cursor: not-allowed;
-}
-
-select[data-status="Pago"] {
-    background: #d4edda;
-}
-
-select[data-status="Pendente"] {
-    background: #f8d7da;
-}
-
-select:disabled {
-    opacity: 0.7;
-}
-
-.btn-unlock {
-    background: #ffc107;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* ===== DESKTOP ===== */
-@media (min-width: 900px) {
-
-    thead {
-        display: table-header-group;
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 12px;
+      background: #f4f6f8;
     }
 
-    tr.card-parcela {
-        display: table-row;
-        background: #fff;
+    h2 {
+      text-align: center;
+      margin-bottom: 16px;
     }
 
-    td {
-        display: table-cell;
-        padding: 8px;
-        border: 1px solid #ddd;
-        text-align: center;
-        vertical-align: middle;
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.1);
     }
 
-    .bloco {
-        border: none;
-        padding: 0;
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
-    .valores div {
-        display: block;
-        font-size: 14px;
+    .card {
+      background: #eef2f6;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 14px;
     }
-}
-</style>
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      font-size: 13px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+
+    input[readonly] {
+      background: #f3f3f3;
+      border: 1px solid #ccc;
+      padding: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    select {
+      padding: 4px;
+    }
+
+    .pago {
+      background: #d4edda;
+    }
+
+    .pendente {
+      background: #f8d7da;
+    }
+
+    @media (max-width: 600px) {
+      h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
+    <h2>Controle de Pagamentos</h2>
 
-<div class="container">
-    <h2>📊 Controle de Pagamentos Energia Solar - Saltoleto</h2>
+    <div class="resumo" id="resumoFinanceiro"></div>
 
-    <div class="stats" id="stats"></div>
-
-    <table>
+    <div class="table-wrapper">
+      <table>
         <thead>
-        <tr>
+          <tr>
+            <th>Responsável</th>
             <th>Parcela</th>
+            <th>Valor (R$)</th>
             <th>Vencimento</th>
-            <th>Valores</th>
             <th>Status</th>
-            <th>Data</th>
-            <th>Ação</th>
-        </tr>
+          </tr>
         </thead>
-        <tbody id="tabela"></tbody>
-    </table>
-</div>
+        <tbody id="tabelaParcelas"></tbody>
+      </table>
+    </div>
+  </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-<script>
-// ===== FIREBASE =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
-  authDomain: "controle-pagamentos-3759d.firebaseapp.com",
-  projectId: "controle-pagamentos-3759d",
-  storageBucket: "controle-pagamentos-3759d.firebasestorage.app",
-  messagingSenderId: "219928011798",
-  appId: "1:219928011798:web:7946650d61cf0bc2528137"
-};
+    // 🔥 CONFIG FIREBASE (SUBSTITUA)
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
 
-firebase.initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-const auth = firebase.auth();
+    await signInAnonymously(auth);
 
-const db = firebase.firestore();
+    let senhaSistema = null;
+    let parcelas = [];
 
-// ===== CONFIG =====
-let senhaSistema = null;
-const TOTAL_PARCELAS = 48;
-const DATA_INICIO = new Date(2026, 1, 27);
+    const refParcelas = doc(db, "pagamentos", "parcelas");
+    const refSenha = doc(db, "configuracoes", "seguranca");
 
-const VALORES_BASE = {
-    fernando: 300,
-    vitor: 300,
-    sebastiao: 200
-};
-
-const ACRESCIMO = 18;
-const PARCELAS_COM_ACRESCIMO = 4;
-
-let estadoPagamentos = [];
-
-async function autenticarAnonimo() {
-    try {
-        await auth.signInAnonymously();
-        console.log("Usuário autenticado anonimamente");
-    } catch (e) {
-        alert("Erro ao autenticar: " + e.message);
-    }
-}
-    
-
-async function carregarSenha() {
-    const doc = await db
-        .collection("configuracoes")
-        .doc("seguranca")
-        .get();
-
-    if (doc.exists) {
-        senhaSistema = doc.data().senha;
-    } else {
-        alert("⚠️ Documento de segurança não encontrado.");
-    }
-}
-    
-
-// ===== FUNÇÕES =====
-function valoresParcela(i) {
-    const extra = i < PARCELAS_COM_ACRESCIMO ? ACRESCIMO : 0;
-    const f = VALORES_BASE.fernando + extra;
-    const v = VALORES_BASE.vitor + extra;
-    const s = VALORES_BASE.sebastiao + extra;
-    return { fernando: f, vitor: v, sebastiao: s, total: f + v + s };
-}
-
-function gerarTabela() {
-    const tbody = document.getElementById("tabela");
-    tbody.innerHTML = "";
-
-    for (let i = 0; i < TOTAL_PARCELAS; i++) {
-        const d = new Date(DATA_INICIO);
-        d.setMonth(d.getMonth() + i);
-        const v = valoresParcela(i);
-
-        tbody.innerHTML += `
-        <tr class="card-parcela">
-            <td>
-                <div class="bloco">
-                    <strong>📅 Parcela ${String(i+1).padStart(2,"0")}/${TOTAL_PARCELAS}</strong>
-                    Vencimento: ${d.toLocaleDateString("pt-BR")}
-                </div>
-            </td>
-
-            <td>
-                <div class="bloco valores">
-                    <div>Fernando <span>R$ ${v.fernando.toFixed(2).replace(".",",")}</span></div>
-                    <div>Vitor <span>R$ ${v.vitor.toFixed(2).replace(".",",")}</span></div>
-                    <div>Sebastião <span>R$ ${v.sebastiao.toFixed(2).replace(".",",")}</span></div>
-                    <div class="total">Total <span>R$ ${v.total.toFixed(2).replace(".",",")}</span></div>
-                </div>
-            </td>
-
-            <td>
-                <div class="bloco">
-                    <select data-i="${i}" onchange="pagar(${i}, this.value)">
-                        <option>Pendente</option>
-                        <option>Pago</option>
-                    </select>
-                </div>
-            </td>
-
-            <td>
-                <div class="bloco">
-                    <input type="date" data-i="${i}" readonly>
-                </div>
-            </td>
-
-            <td>
-                <div class="bloco">
-                    <button class="btn-unlock" onclick="desbloquear(${i})">🔓 Desbloquear</button>
-                </div>
-            </td>
-        </tr>`;
-    }
-}
-
-function iniciarListenerFirestore() {
-    db.collection("pagamentos").doc("parcelas").onSnapshot(doc => {
-        if (!doc.exists) return;
-        estadoPagamentos = doc.data().dados || [];
-
-        estadoPagamentos.forEach((p,i)=>{
-            const s = document.querySelector(`select[data-i="${i}"]`);
-            const d = document.querySelector(`input[data-i="${i}"]`);
-            if(!s||!d) return;
-
-            s.value = p.status;
-            s.setAttribute("data-status", p.status);
-            s.disabled = p.bloqueado;
-            d.value = p.data || "";
-        });
-
-        atualizarResumo();
-    });
-}
-
-async function salvar() {
-    estadoPagamentos = [];
-    for (let i = 0; i < TOTAL_PARCELAS; i++) {
-        const s = document.querySelector(`select[data-i="${i}"]`);
-        const d = document.querySelector(`input[data-i="${i}"]`);
-        estadoPagamentos.push({
-            status: s.value,
-            data: d.value,
-            bloqueado: s.disabled
-        });
-    }
-    await db.collection("pagamentos").doc("parcelas").set({ dados: estadoPagamentos });
-}
-
-function pagar(i,status) {
-    if(status==="Pago") {
-        if (!senhaSistema) {
-        alert("Senha ainda não carregada.");
-        return;
+    // 🔐 CARREGA SENHA
+    async function carregarSenha() {
+      const snap = await getDoc(refSenha);
+      if (snap.exists()) senhaSistema = snap.data().senha;
     }
 
-    if (prompt("Senha:") !== senhaSistema) return;
-        const s=document.querySelector(`select[data-i="${i}"]`);
-        const d=document.querySelector(`input[data-i="${i}"]`);
-        d.value=new Date().toISOString().split("T")[0];
-        s.disabled=true;
-        s.setAttribute("data-status","Pago");
-        salvar();
-    }
-}
-
-function desbloquear(i){
-    if (!senhaSistema) {
-        alert("Senha ainda não carregada.");
-        return;
-    }
-
-    if (prompt("Senha:") !== senhaSistema) return;
-    
-    const s=document.querySelector(`select[data-i="${i}"]`);
-    const d=document.querySelector(`input[data-i="${i}"]`);
-    s.disabled=false;
-    s.value="Pendente";
-    d.value="";
-    s.setAttribute("data-status","Pendente");
-    salvar();
-}
-
-function atualizarResumo(){
-    let pagos=0,total=0;
-    estadoPagamentos.forEach((p,i)=>{
-        if(p.status==="Pago"){
-            pagos++;
-            total+=valoresParcela(i).total;
+    // 📥 LISTENER
+    function iniciarListener() {
+      onSnapshot(refParcelas, snap => {
+        if (snap.exists()) {
+          parcelas = snap.data().dados;
+          renderizar();
         }
-    });
+      });
+    }
 
-    document.getElementById("stats").innerHTML=`
-        <div class="stat"><h4>Pagas</h4><span>${pagos}</span></div>
-        <div class="stat"><h4>Pendentes</h4><span>${TOTAL_PARCELAS-pagos}</span></div>
-        <div class="stat"><h4>Total Pago</h4><span>R$ ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}</span></div>
-        <div class="stat"><h4>Progresso</h4><span>${Math.round((pagos/TOTAL_PARCELAS)*100)}%</span></div>
-    `;
-}
+    // 🧮 RESUMO
+    function atualizarResumo() {
+      const resumo = {};
 
-window.onload = async () => {
-    await autenticarAnonimo();
-    await carregarSenha(); 
-    gerarTabela();
-    iniciarListenerFirestore();
-};
+      parcelas.forEach(p => {
+        if (!resumo[p.nome]) {
+          resumo[p.nome] = { total: 0, pago: 0 };
+        }
+        resumo[p.nome].total += p.valor;
+        if (p.status === "Pago") resumo[p.nome].pago += p.valor;
+      });
 
+      const div = document.getElementById("resumoFinanceiro");
+      div.innerHTML = "";
 
-</script>
+      Object.keys(resumo).forEach(nome => {
+        const r = resumo[nome];
+        div.innerHTML += `
+          <div class="card">
+            <strong>${nome}</strong><br>
+            Total: R$ ${r.total.toFixed(2)}<br>
+            Pago: R$ ${r.pago.toFixed(2)}<br>
+            Aberto: R$ ${(r.total - r.pago).toFixed(2)}
+          </div>
+        `;
+      });
+    }
 
+    // 🖥️ TABELA
+    function renderizar() {
+      const tbody = document.getElementById("tabelaParcelas");
+      tbody.innerHTML = "";
+
+      parcelas.forEach((p, i) => {
+        const tr = document.createElement("tr");
+        tr.className = p.status === "Pago" ? "pago" : "pendente";
+
+        tr.innerHTML = `
+          <td>${p.nome}</td>
+          <td>${p.parcela}</td>
+          <td>${p.valor.toFixed(2)}</td>
+          <td><input type="date" value="${p.data}" readonly></td>
+          <td>
+            <select ${p.bloqueado ? "disabled" : ""}>
+              <option ${p.status === "Pendente" ? "selected" : ""}>Pendente</option>
+              <option ${p.status === "Pago" ? "selected" : ""}>Pago</option>
+            </select>
+          </td>
+        `;
+
+        const select = tr.querySelector("select");
+        select.onchange = async () => {
+          if (prompt("Senha:") !== senhaSistema) {
+            select.value = p.status;
+            return;
+          }
+
+          p.status = "Pago";
+          p.bloqueado = true;
+
+          await setDoc(refParcelas, { dados: parcelas });
+        };
+
+        tbody.appendChild(tr);
+      });
+
+      atualizarResumo();
+    }
+
+    // 🚀 START
+    await carregarSenha();
+    iniciarListener();
+  </script>
 </body>
 </html>
