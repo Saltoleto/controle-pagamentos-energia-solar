@@ -212,11 +212,7 @@ let swRegistration = null;
 
 if ('serviceWorker' in navigator) {
 
- // 📦 Cache / Offline
-  navigator.serviceWorker.register(
-    "/controle-pagamentos-energia-solar/service-worker.js"
-  );
-    
+
   // 🔔 Firebase Messaging
   navigator.serviceWorker.register(
     '/controle-pagamentos-energia-solar/firebase-messaging-sw.js'
