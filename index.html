@@ -203,18 +203,21 @@ select:disabled {
 <!-- Firebase Messaging-->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
-    
-
 <script>
+
+let swRegistration = null;
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(
     '/controle-pagamentos-energia-solar/firebase-messaging-sw.js'
   ).then(registration => {
+    swRegistration = registration;
     console.log('Service Worker registrado:', registration.scope);
-    messaging.useServiceWorker(registration);
+  }).catch(err => {
+    console.error('Erro ao registrar SW:', err);
   });
 }
+    
 
 firebase.initializeApp({
   apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
@@ -224,13 +227,26 @@ firebase.initializeApp({
   appId: "1:219928011798:web:7946650d61cf0bc2528137"
 });
 
-
 async function registrarNotificacao() {
+  if (!("Notification" in window)) {
+    alert("Este navegador não suporta notificações");
+    return;
+  }
+
   const permission = await Notification.requestPermission();
-  if (permission !== "granted") return;
-    
+  if (permission !== "granted") {
+    alert("Permissão de notificação negada");
+    return;
+  }
+
+  if (!swRegistration) {
+    alert("Service Worker ainda não está pronto. Recarregue a página.");
+    return;
+  }
+
   const token = await messaging.getToken({
-    vapidKey: "BFApPQ4kZRnpq8UedSKoxx_icTgJd_hcSztRh3aEa8cC3ZOS9Odwl-9DJygBRv7WcpHrB-1AY2_8nZtYn8JzBsk"
+    vapidKey: "BFApPQ4kZRnpq8UedSKoxx_icTgJd_hcSztRh3aEa8cC3ZOS9Odwl-9DJygBRv7WcpHrB-1AY2_8nZtYn8JzBsk",
+    serviceWorkerRegistration: swRegistration
   });
 
   await db.collection("notificacoes").doc(token).set({
@@ -240,6 +256,7 @@ async function registrarNotificacao() {
 
   console.log("Token registrado:", token);
 }
+    
 
 
 const auth = firebase.auth();
