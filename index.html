@@ -200,24 +200,10 @@ select:disabled {
 <!-- Auth -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-<!-- Firebase Messaging-->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
     
 
 <script>
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(
-    '/controle-pagamentos-energia-solar/firebase-messaging-sw.js'
-  ).then(registration => {
-    console.log('Service Worker registrado:', registration.scope);
-    messaging.useServiceWorker(registration);
-  }).catch(err => {
-    console.error('Erro ao registrar Service Worker:', err);
-  });
-}
-
-
+    
 // ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
@@ -233,8 +219,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 const db = firebase.firestore();
-
-const messaging = firebase.messaging();
 
 
 // ===== CONFIG =====
@@ -472,7 +456,6 @@ window.onload = async () => {
     await carregarSenha(); 
     gerarTabela();
     iniciarListenerFirestore();
-    registrarNotificacao();
 
 };
 
