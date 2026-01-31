@@ -205,6 +205,19 @@ select:disabled {
     
 
 <script>
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(
+    '/controle-pagamentos-energia-solar/firebase-messaging-sw.js'
+  ).then(registration => {
+    console.log('Service Worker registrado:', registration.scope);
+    messaging.useServiceWorker(registration);
+  }).catch(err => {
+    console.error('Erro ao registrar Service Worker:', err);
+  });
+}
+
+
 // ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyCjs2EU9JuVHTxI0ZNIszAdH3mdF7obGnA",
@@ -275,7 +288,7 @@ async function registrarNotificacao() {
 
         // Obtém o token do dispositivo
         const token = await messaging.getToken({
-            vapidKey: "219928011798"
+            vapidKey: "BP1_U06Nws615JSm4XqDpHLrsAN_Y_UEKe62PkmmreAQnmo9YiT8ZAQG7yQoF__kYMqrqbhw3jS1pIZUk6KO29Y"
         });
 
         if (!token) return;
