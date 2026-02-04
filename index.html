@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pagamentos Energia Solar">
-<link rel="apple-touch-icon" href="/controle-pagamentos-energia-solar/icons/icon-192.png">
-<link rel="manifest" href="/controle-pagamentos-energia-solar/manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
     
 <title>Controle de Pagamentos Energia Solar - Saltoleto</title>
 
@@ -294,11 +294,8 @@ select:disabled {
 
 <script>
 if ('serviceWorker' in navigator) {
-  
- // 📦 Cache / Offline
-  const swUrl = new URL("service-worker.js", window.location.href);
-
-  navigator.serviceWorker.register(swUrl).then(registration => {
+  // 📦 Cache / Offline
+  navigator.serviceWorker.register("./service-worker.js").then(registration => {
     console.log('Service Worker registrado:', registration.scope);
   }).catch(err => {
     console.error('Erro ao registrar SW:', err);

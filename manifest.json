@@ -2,34 +2,34 @@
   "name": "Controle Pagamentos Energia Solar - Saltoleto",
   "short_name": "Pagamentos Energia Solar",
   "description": "Controle de pagamentos do projeto de energia solar com acompanhamento por parcelas.",
-  "start_url": "/controle-pagamentos-energia-solar/index.html",
-  "scope": "/controle-pagamentos-energia-solar/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#667eea",
   "orientation": "portrait",
-  "id": "/controle-pagamentos-energia-solar/",
+  "id": "./",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
