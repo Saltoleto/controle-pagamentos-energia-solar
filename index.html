@@ -297,9 +297,9 @@ let swRegistration = null;
 if ('serviceWorker' in navigator) {
   
  // 📦 Cache / Offline
-  navigator.serviceWorker.register(
-    "/controle-pagamentos-energia-solar/service-worker.js"
-  ).then(registration => {
+  const swUrl = new URL("service-worker.js", window.location.href);
+
+  navigator.serviceWorker.register(swUrl).then(registration => {
     swRegistration = registration;
     console.log('Service Worker registrado:', registration.scope);
   }).catch(err => {
