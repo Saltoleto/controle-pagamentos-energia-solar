@@ -9,6 +9,20 @@
 <title>Controle de Pagamentos Energia Solar - Saltoleto</title>
 
 <style>
+:root {
+    color-scheme: light;
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #4f46e5;
+    --accent-strong: #3730a3;
+    --success: #16a34a;
+    --warning: #f97316;
+    --border: #e2e8f0;
+    --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
 * {
     box-sizing: border-box;
     max-width: 100%;
@@ -16,49 +30,71 @@
 
 body {
     margin: 0;
-    padding: 10px;
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
+    padding: 24px;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: radial-gradient(circle at top, #eef2ff, var(--bg));
+    color: var(--text);
 }
 
 .container {
-    background: #fff;
-    border-radius: 8px;
-    padding: 12px;
+    background: var(--card);
+    border-radius: 18px;
+    padding: 24px;
     max-width: 1200px;
-    margin: auto;
+    margin: 0 auto 40px;
+    box-shadow: var(--shadow);
+    border: 1px solid #eef2ff;
 }
 
-h2 {
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 700;
+}
+
+.header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
 }
 
 /* ===== RESUMO ===== */
 .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 8px;
-    margin-bottom: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
 .stat {
-    background: #f8f9fa;
-    border-left: 4px solid #667eea;
-    padding: 8px;
-    border-radius: 4px;
-    text-align: center;
+    background: linear-gradient(135deg, #eef2ff, #ffffff);
+    border: 1px solid #e0e7ff;
+    padding: 14px;
+    border-radius: 12px;
+    text-align: left;
+    display: grid;
+    gap: 6px;
 }
 
 .stat h4 {
     margin: 0;
     font-size: 12px;
-    color: #666;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .stat span {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 700;
 }
 
 /* ===== TABELA / CARDS ===== */
@@ -73,10 +109,12 @@ thead {
 
 tr.card-parcela {
     display: block;
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
 td {
@@ -86,57 +124,90 @@ td {
 
 /* ===== BLOCOS ===== */
 .bloco {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .bloco:last-child {
     border-bottom: none;
 }
 
+.bloco strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.bloco .meta {
+    font-size: 12px;
+    color: var(--muted);
+}
+
 .valores div {
     display: flex;
     justify-content: space-between;
     font-size: 13px;
+    color: var(--text);
+    padding: 2px 0;
 }
 
 .valores .total {
-    margin-top: 6px;
-    font-weight: bold;
-    border-top: 1px dashed #ccc;
-    padding-top: 4px;
+    margin-top: 8px;
+    font-weight: 700;
+    border-top: 1px dashed #cbd5f5;
+    padding-top: 6px;
+    color: var(--accent-strong);
 }
 
 /* ===== INPUTS ===== */
 select, input, button {
     width: 100%;
-    padding: 8px;
-    margin-top: 6px;
+    padding: 10px 12px;
+    margin-top: 8px;
     font-size: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    transition: 0.2s ease;
+}
+
+select:focus, input:focus, button:focus {
+    outline: 2px solid rgba(79, 70, 229, 0.2);
+    border-color: var(--accent);
 }
 
 input[readonly] {
-    background: #e9ecef;
+    background: #f1f5f9;
     cursor: not-allowed;
+    color: var(--muted);
 }
 
 select[data-status="Pago"] {
-    background: #d4edda;
+    background: #dcfce7;
+    border-color: #86efac;
 }
 
 select[data-status="Pendente"] {
-    background: #f8d7da;
+    background: #fff7ed;
+    border-color: #fdba74;
 }
 
 select:disabled {
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .btn-unlock {
-    background: #ffc107;
+    background: var(--warning);
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
     cursor: pointer;
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-unlock:hover {
+    filter: brightness(0.95);
 }
 
 /* ===== DESKTOP ===== */
@@ -144,17 +215,28 @@ select:disabled {
 
     thead {
         display: table-header-group;
+        background: #eef2ff;
+    }
+
+    thead th {
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        padding: 12px;
+        text-align: center;
     }
 
     tr.card-parcela {
         display: table-row;
         background: #fff;
+        box-shadow: none;
     }
 
     td {
         display: table-cell;
-        padding: 8px;
-        border: 1px solid #ddd;
+        padding: 12px;
+        border: 1px solid var(--border);
         text-align: center;
         vertical-align: middle;
     }
@@ -175,7 +257,10 @@ select:disabled {
 <body>
 
 <div class="container">
-    <h2>📊 Controle de Pagamentos Energia Solar - Saltoleto</h2>
+    <div class="header">
+        <h1>📊 Controle de Pagamentos Energia Solar</h1>
+        <p>Visão financeira clara, no mesmo padrão do projeto de investimentos.</p>
+    </div>
 
     <div class="stats" id="stats"></div>
 
@@ -183,7 +268,6 @@ select:disabled {
         <thead>
         <tr>
             <th>Parcela</th>
-            <th>Vencimento</th>
             <th>Valores</th>
             <th>Status</th>
             <th>Data</th>
@@ -338,7 +422,7 @@ function gerarTabela() {
             <td>
                 <div class="bloco">
                     <strong>📅 Parcela ${String(i+1).padStart(2,"0")}/${TOTAL_PARCELAS}</strong>
-                    Vencimento: ${d.toLocaleDateString("pt-BR")}
+                    <span class="meta">Vencimento: ${d.toLocaleDateString("pt-BR")}</span>
                 </div>
             </td>
 
